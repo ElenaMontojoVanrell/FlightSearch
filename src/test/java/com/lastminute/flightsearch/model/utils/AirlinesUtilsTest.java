@@ -15,8 +15,6 @@ import java.util.List;
  */
 public class AirlinesUtilsTest {
 
-    private AirlinesUtils airlinesUtils = new AirlinesUtils();
-
     private static final String CODE = "CODE";
     private static final String NAME = "NAME";
     private static final Double PRICE = 1D;
@@ -39,7 +37,7 @@ public class AirlinesUtilsTest {
 
     @Test
     public void getAirline_Should_ReturnAirline_When_ExistingOnHashMap(){
-        Airline result = airlinesUtils.getAirline(null, CODE, setUpAirlineHashMap());
+        Airline result = AirlinesUtils.getAirline(null, CODE, setUpAirlineHashMap());
         Assert.assertEquals(result.getCode(), CODE);
         Assert.assertEquals(result.getInfantPrice(), PRICE);
         Assert.assertEquals(result.getName(), NAME);
@@ -49,7 +47,7 @@ public class AirlinesUtilsTest {
     public void getAirline_Should_ReturnNull_When_EmptyListOfAirlines(){
         List<Airline> airlineList = new ArrayList<>();
         HashMap<String, Airline> airlineHashMap = new HashMap<>();
-        Airline result = airlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
+        Airline result = AirlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
         Assert.assertNull(result);
     }
 
@@ -59,7 +57,7 @@ public class AirlinesUtilsTest {
         Double newPrice = PRICE + 2;
         airlineList.add(new Airline(CODE+"2", NAME+"2", newPrice));
         HashMap<String, Airline> airlineHashMap = new HashMap<>();
-        Airline result = airlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
+        Airline result = AirlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
         Assert.assertNull(result);
     }
 
@@ -67,7 +65,7 @@ public class AirlinesUtilsTest {
     public void getAirline_Should_ReturnAirlineAndAddToMap_When_AirlineFoundedNotExistingOnHashMap(){
         HashMap<String, Airline> airlineHashMap = new HashMap<>();
         List<Airline> airlineList = setUpAirlines();
-        Airline result = airlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
+        Airline result = AirlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
 
         Assert.assertEquals(result.getCode(), CODE);
         Assert.assertEquals(result.getInfantPrice(), PRICE);
@@ -86,7 +84,7 @@ public class AirlinesUtilsTest {
         Double newPrice = PRICE + 2;
         airlineList.add(new Airline(CODE+"2", NAME+"2", newPrice));
 
-        Airline result = airlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
+        AirlinesUtils.getAirline(airlineList, CODE, airlineHashMap);
 
         Assert.assertEquals(1, airlineList.size());
         Assert.assertEquals("CODE2" ,airlineList.get(0).getCode());

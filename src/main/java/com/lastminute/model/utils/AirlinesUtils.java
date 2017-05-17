@@ -9,10 +9,8 @@ import java.util.List;
  * Created on 16/05/2017.
  */
 public class AirlinesUtils {
-    public AirlinesUtils() {
-    }
 
-    public Airline getAirline(List<Airline> airlines, String airlineCode, HashMap<String, Airline> airlineHashMap){
+    public static Airline getAirline(List<Airline> airlines, String airlineCode, HashMap<String, Airline> airlineHashMap){
         if(airlineHashMap.containsKey(airlineCode)){
             return airlineHashMap.get(airlineCode);
         } else {

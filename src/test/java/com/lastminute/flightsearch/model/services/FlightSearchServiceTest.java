@@ -24,10 +24,8 @@ import static org.mockito.Mockito.*;
 public class FlightSearchServiceTest {
 
     private FlightSearchDataSetUpForTest flightSearchDataSetUpForTest = new FlightSearchDataSetUpForTest();
-    private List<Airport> airportList;
     private List<Airline> airlinesList;
     private Map<FlightKey, List<FlightInformation>> flightKeyListMap;
-    private AirlinesUtils airlinesUtils;
     FlightParametersSearch flightParametersSearch;
 
     private static FlightSearchService flightSearchServiceImpl;
@@ -38,13 +36,38 @@ public class FlightSearchServiceTest {
     public void dataSetUp(){
         flightSearchServiceImpl = new FlightSearchServiceImpl();
 
-        airportList = new ArrayList<>();
         airlinesList = new ArrayList<>();
 
         flightParametersSearch = flightSearchDataSetUpForTest.defaultSearchValues();
 
         flightKeyListMap = mock(Map.class);
-        airlinesUtils = mock(AirlinesUtils.class);
+    }
+
+    @Test
+    public void performSearch_When_NullFlightParametersSearch_Should_ReturnEmptyList(){
+
+        List<TripInformation> result = flightSearchServiceImpl.performSearch(null, flightKeyListMap, airlinesList);
+        verify(flightKeyListMap, times(0)).get(any(FlightKey.class));
+
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void performSearch_When_NullFlightKeyListMap_Should_ReturnEmptyList(){
+
+        List<TripInformation> result = flightSearchServiceImpl.performSearch(flightParametersSearch, null, airlinesList);
+        verify(flightKeyListMap, times(0)).get(any(FlightKey.class));
+
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void performSearch_When_NullAirlinesList_Should_ReturnEmptyList(){
+
+        List<TripInformation> result = flightSearchServiceImpl.performSearch(flightParametersSearch, flightKeyListMap, null);
+        verify(flightKeyListMap, times(0)).get(any(FlightKey.class));
+
+        Assert.assertEquals(0, result.size());
     }
 
     @Test
@@ -52,12 +75,9 @@ public class FlightSearchServiceTest {
 
         when(flightKeyListMap.get(any(FlightKey.class))).thenReturn(null);
         List<TripInformation> result = flightSearchServiceImpl.performSearch(flightParametersSearch, flightKeyListMap, airlinesList);
-
         verify(flightKeyListMap, times(1)).get(any(FlightKey.class));
-        verify(airlinesUtils,never()).getAirline(any(List.class), any(String.class), any(HashMap.class));
 
         Assert.assertEquals(0, result.size());
-
     }
 
     @Test
@@ -66,31 +86,26 @@ public class FlightSearchServiceTest {
         List<FlightInformation> listOfFlights = new ArrayList<>();
 
         when(flightKeyListMap.get(any(FlightKey.class))).thenReturn(listOfFlights);
-
         List<TripInformation> result = flightSearchServiceImpl.performSearch(flightParametersSearch, flightKeyListMap, airlinesList);
-
         verify(flightKeyListMap, times(1)).get(any(FlightKey.class));
-        verify(airlinesUtils,times(0)).getAirline(any(List.class), any(String.class), any(HashMap.class));
 
         Assert.assertEquals(0, result.size());
-
     }
 
     @Test
-    public void performSearch_When_2AvailableFlightOneUnknownAirline_Should_ReturnOnlyOneOption(){
-
+    public void performSearch_When_2AvailableFlightOneUnknownAirline_Should_ReturnOnlyTripFromAcceptedAirline(){
+        //flights 1234 and 9876, but only one of those airlines is recognised: 1234
         List<FlightInformation> listOfFlights = createDataForTest();
-        Airline testAirline = new Airline("a", "b", 1d);
+        Airline testAirline = new Airline("12", "b", 1d);
+        airlinesList.add(testAirline);
 
-        when(flightKeyListMap.get(any(FlightKey.class))).thenReturn(listOfFlights);
-        when(airlinesUtils.getAirline(any(List.class), eq(listOfFlights.get(0).getAirline().substring(0,2)), any(HashMap.class))).thenReturn(null);
-        when(airlinesUtils.getAirline(any(List.class), eq(listOfFlights.get(1).getAirline().substring(0,2)), any(HashMap.class))).thenReturn(testAirline);
+        Map<FlightKey, List<FlightInformation>> flightInformationLMap = new HashMap<>();
+        flightInformationLMap.put(new FlightKey(flightParametersSearch.getOrigin().getCode(), flightParametersSearch.getDestination().getCode()), listOfFlights);
 
-        List<TripInformation> result = flightSearchServiceImpl.performSearch(flightParametersSearch, flightKeyListMap, airlinesList);
+        List<TripInformation> result = flightSearchServiceImpl.performSearch(flightParametersSearch, flightInformationLMap, airlinesList);
 
-        verify(flightKeyListMap, times(1)).get(any(FlightKey.class));
-
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals("1234", result.get(0).getAirline());
     }
 
     private List<FlightInformation> createDataForTest(){

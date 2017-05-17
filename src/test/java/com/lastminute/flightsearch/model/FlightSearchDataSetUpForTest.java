@@ -75,8 +75,8 @@ public class FlightSearchDataSetUpForTest {
     }
 
     public FlightParametersSearch defaultSearchValues(){
-        origin = new Airport();
-        destination = new Airport();
+        origin = new Airport("CODE", "NAME");
+        destination = new Airport("CODE2", "NAME2");
         departure = getDateRemovingDaysFromToday(1);
         adults = 2;
         children = 1;

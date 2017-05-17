@@ -13,26 +13,23 @@ import java.util.Map;
  */
 public class FlightSearchServiceImpl implements FlightSearchService{
 
-    private AirlinesUtils airlinesUtils;
-
     public FlightSearchServiceImpl() {
-        airlinesUtils = new AirlinesUtils();
     }
 
-    public List<TripInformation> performSearch(FlightParametersSearch flightParametersSearch, Map<FlightKey, List<FlightInformation>> flightInformationList, List<Airline> airlinesList) {
+    public List<TripInformation> performSearch(FlightParametersSearch flightParametersSearch, Map<FlightKey, List<FlightInformation>> flightInformationLMap, List<Airline> airlinesList) {
 
-        List<TripInformation> result = new ArrayList<>();
-        if(airlinesList== null) return result;
+        if(airlinesList== null || flightParametersSearch == null || flightInformationLMap == null) return new ArrayList<>();
 
-        List<FlightInformation> availableFlights = flightInformationList.get(new FlightKey(flightParametersSearch.getOriginNotNull().getCode(), flightParametersSearch.getDestinationNotNull().getCode()));
+        List<FlightInformation> availableFlights = flightInformationLMap.get(new FlightKey(flightParametersSearch.getOriginNotNull().getCode(), flightParametersSearch.getDestinationNotNull().getCode()));
         if (availableFlights == null) {
-            return result;
+            return new ArrayList<>();
         }
 
+        List<TripInformation> result = new ArrayList<>();
         HashMap<String, Airline> airlineHashMap = new HashMap<>();
         List<Airline> airlinesListAux = new ArrayList<>(airlinesList);
         for (FlightInformation flightInformation : availableFlights) {
-            Airline airline = airlinesUtils.getAirline(airlinesListAux, flightInformation.getAirline().substring(0, 2), airlineHashMap);
+            Airline airline = AirlinesUtils.getAirline(airlinesListAux, flightInformation.getAirline().substring(0, 2), airlineHashMap);
             if (airline != null) {
                 result.add(new TripInformationAdapter(flightParametersSearch, flightInformation, airline).convert());
             }
